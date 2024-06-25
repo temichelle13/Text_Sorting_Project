@@ -1,42 +1,36 @@
-
+# enhanced_classifier.py
 from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.naive_bayes import MultinomialNB
-from sklearn.pipeline import Pipeline
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import classification_report
+from sklearn.pipeline import make_pipeline
+from sklearn.svm import SVC
 
-import pandas as pd
+def train_classifier():
+    # Sample data
+    texts = [
+        "This is a document about machine learning.",
+        "This document is about Python programming.",
+        "Machine learning and data science are related fields.",
+        "Python is a popular programming language.",
+        "Data science involves machine learning and statistics.",
+        "Programming in Python is fun and easy."
+    ]
+    labels = ["ML", "Python", "ML", "Python", "ML", "Python"]
 
-class EnhancedClassifier:
-    def __init__(self):
-        self.model = Pipeline([
-            ('vectorizer', TfidfVectorizer()),
-            ('classifier', MultinomialNB())
-        ])
-        
-    def load_data(self, filepath: str) -> pd.DataFrame:
-        # Assuming CSV format for simplicity; real implementation may vary based on the actual data format
-        return pd.read_csv(filepath)
-        
-    def train_model(self, data: pd.DataFrame, label_column: str, text_column: str):
-        X_train, X_test, y_train, y_test = train_test_split(data[text_column], data[label_column], test_size=0.2, random_state=42)
-        self.model.fit(X_train, y_train)
-        predictions = self.model.predict(X_test)
-        print(classification_report(y_test, predictions))
-        
-    def predict(self, text: str) -> str:
-        return self.model.predict([text])[0]
+    # Create a pipeline that combines TF-IDF and a Support Vector Machine classifier
+    model = make_pipeline(TfidfVectorizer(), SVC(kernel='linear'))
+    model.fit(texts, labels)
+    return model
 
-# Example Usage
+def classify_text(model, text):
+    return model.predict([text])[0]
+
 def main():
-    classifier = EnhancedClassifier()
-    # Placeholder for loading data and training the model
-    # filepath = 'path/to/your/dataset.csv'
-    # data = classifier.load_data(filepath)
-    # classifier.train_model(data, 'LabelColumn', 'TextColumn')
-    
-    # Example prediction
-    # print(classifier.predict("Example text for classification"))
+    model = train_classifier()
+    test_texts = [
+        "This is a new document about data science.",
+        "Programming with Python is great."
+    ]
+    for text in test_texts:
+        print(f"Text: '{text}' Classified as: {classify_text(model, text)}")
 
 if __name__ == "__main__":
     main()
